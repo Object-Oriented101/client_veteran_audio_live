@@ -15,7 +15,8 @@ async def transcribe_audio(websocket_uri, file_path):
         return transcription
 
 def main():
-    websocket_uri = "wss://k9t4ow3hxdvt7q-8888.proxy.runpod.net/ws"  # Change this to your WebSocket server URI
+    pod_id = "xo3hx076k8dcke"
+    websocket_uri = f"wss://{pod_id}-8888.proxy.runpod.net/ws"  # Change this to your WebSocket server URI
     file_path = 'sample_audio.mp3'  # Path to the audio file you want to transcribe
 
     # Run the async function in an event loop
