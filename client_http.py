@@ -2,8 +2,8 @@ import speech_recognition as sr
 import requests
 import sys
 
-pod_id = "a8gonqdtokxxyb"
-SERVER_URL = f"https://{pod_id}-8888.proxy.runpod.net/transcribe"  # WebSocket server URI
+pod_id = "c78v86pkys859d"
+SERVER_URL = f"https://{pod_id}-8888.proxy.runpod.net/transcribe" 
 
 def record_audio():
     recognizer = sr.Recognizer()
@@ -27,6 +27,7 @@ def main():
         while True:
             audio = record_audio()
             transcription = send_audio_to_server(audio)
+            print(transcription)
             print(transcription['transcription'])
     except KeyboardInterrupt:
         print("Exiting...")

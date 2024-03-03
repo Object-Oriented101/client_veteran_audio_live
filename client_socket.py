@@ -8,9 +8,8 @@ try:
 except ImportError:
     import _thread as thread
 
-pod_id = "a8gonqdtokxxyb"
-#SERVER_URL = f"https://{pod_id}-8888.proxy.runpod.net/transcribe" 
-SERVER_WS_URL = "wss://a8gonqdtokxxyb-8888.proxy.runpod.net/ws"  # Use wss:// for secure WebSocket connections
+pod_id = "c78v86pkys859d"
+SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 
 
 def on_message(ws, message):
@@ -41,7 +40,7 @@ def on_open(ws):
     thread.start_new_thread(run, ())
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
+    websocket.enableTrace(False)
     ws = websocket.WebSocketApp(SERVER_WS_URL,
                               on_open=on_open,
                               on_message=on_message,
