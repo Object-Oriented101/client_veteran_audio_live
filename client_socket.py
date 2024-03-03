@@ -3,14 +3,14 @@ import websocket
 import _thread as thread
 import json
 
-pod_id = "c78v86pkys859d"
+pod_id = "aworqy9tqsvvyn"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 
+# Have two proccesses: time-based + pause based...
+# if no bytes...turn it off
 
 def save_message(message):
     file_path = "database.json"
-
-
     try:
         with open(file_path, "r") as file:
             data = json.load(file)
