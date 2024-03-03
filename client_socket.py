@@ -1,28 +1,38 @@
 import speech_recognition as sr
 import websocket
-import threading
-import sys
-
-try:
-    import thread
-except ImportError:
-    import _thread as thread
+import _thread as thread
+import json
 
 pod_id = "c78v86pkys859d"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 
 
+def save_message(message):
+    file_path = "database.json"
+
+
+    try:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = []
+
+    data.append({"message": message})
+
+    with open(file_path, "w") as file:
+        json.dump(data, file)
+
 def on_message(ws, message):
     print("Received Transcription:", message)
+    save_message(message)
 
 def on_error(ws, error):
     print("Error:", error)
 
 def on_close(ws, close_status_code, close_msg):
-    print("### closed ###")
+    print("### CONNECTION CLOSED ###")
 
-def on_open(ws):
-    def run(*args):
+def run(*args):
         recognizer = sr.Recognizer()
         mic = sr.Microphone()
         with mic as source:
@@ -37,6 +47,7 @@ def on_open(ws):
                     print("Listening stopped:", e)
                     break
         ws.close()
+def on_open(ws):
     thread.start_new_thread(run, ())
 
 if __name__ == "__main__":

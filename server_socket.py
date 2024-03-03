@@ -7,7 +7,7 @@ import uvicorn
 app = FastAPI()
 
 # Load Whisper model
-model = whisper.load_model("base")
+model = whisper.load_model("base.en")
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
