@@ -9,6 +9,17 @@ import numpy as np
 pod_id = "sjz61aho9p5lyj"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 
+buffer = bytearray()
+overlap_buffer = bytearray()
+buffer_duration_ms = 1000  # Target duration for each buffer in milliseconds
+samples_per_frame = 1024
+sample_rate = 16000
+buffer_size = int((sample_rate / 1000) * buffer_duration_ms) * 2  # 2 bytes per sample for paInt16
+overlap_size = buffer_size  # Overlap is the same size as the buffer
+silence_threshold_seconds = 1.5  # How long to wait in silence before sending the buffer
+last_send_time = time.time()  # Initialization of the global variable
+
+
 def save_message(message):
     file_path = "database.json"
     try:
@@ -57,18 +68,6 @@ def calculate_rms(audio_data):
         rms = np.sqrt(mean_squared)
     
     return rms
-
-
-buffer = bytearray()
-overlap_buffer = bytearray()
-buffer_duration_ms = 1000  # Target duration for each buffer in milliseconds
-samples_per_frame = 1024
-sample_rate = 16000
-buffer_size = int((sample_rate / 1000) * buffer_duration_ms) * 2  # 2 bytes per sample for paInt16
-overlap_size = buffer_size  # Overlap is the same size as the buffer
-silence_threshold_seconds = 1.5  # How long to wait in silence before sending the buffer
-last_send_time = time.time()  # Initialization of the global variable
-# Initialization of other variables like buffer_duration_ms, sample_rate, etc.
 
 def audio_stream_callback(in_data, frame_count, time_info, status):
     global buffer, overlap_buffer, last_send_time  # Declare as global inside the function
