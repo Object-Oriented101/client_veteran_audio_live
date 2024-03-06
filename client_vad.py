@@ -59,7 +59,6 @@ def calculate_rms(audio_data):
     return rms
 
 
-
 buffer = bytearray()
 overlap_buffer = bytearray()
 buffer_duration_ms = 1000  # Target duration for each buffer in milliseconds
