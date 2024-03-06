@@ -2,47 +2,36 @@ import streamlit as st
 import json
 import time
 
-file_path = "json_files/database.json"
-
-def load_transcriptions():
+def load_json_file(file_path):
     try:
-        with open(file_path, "r") as file:
-            data = json.load(file)
-        return data
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
+        with open(file_path, 'r') as file:
+            return json.load(file)
+    except Exception as e:
+        return {"error": str(e)}
 
-def display_messages(message_container, messages):
-    message_container.empty()
-    with message_container:
-        for item in messages:
-            st.text(item["message"])
-def app():
-    st.title("Live Transcriptions")
-    data = load_transcriptions()
-     # Display initial messages
-    for item in data:
-        st.text(item["message"])
-    
-    # Track the last known state of the data
-    last_known_length = len(data)
-    
-    # Loop to refresh data
+def main():
+    st.set_page_config(layout="wide")
+
+    pause_transcription, live_transcription = st.columns(2)
+
+    with pause_transcription:
+        st.header("Transcription by Pause")
+        pause_content = st.empty()
+
+    with live_transcription:
+        st.header("Transcription Live")
+        live_content = st.empty()
+
     while True:
-        new_data = load_transcriptions()
-        new_data_length = len(new_data)
-        
-        # Check if there are new messages
-        if new_data_length > last_known_length:
-            # Display only new messages
-            for item in new_data[last_known_length:]:
-                st.text(item["message"])
-                
-            # Update the last known data length
-            last_known_length = new_data_length
-        
-        time.sleep(1)  # Wait for 1 second before checking for updates again
+        content1 = load_json_file("json_files/history_pause.json")
+        pause_content.json(content1)
 
- 
+        content2 = load_json_file("json_files/history_live.json")
+        live_content.json(content2)
+
+        time.sleep(0.1)
+
+  
+
 if __name__ == "__main__":
-    app()
+    main()

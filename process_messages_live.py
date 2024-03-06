@@ -50,8 +50,8 @@ def process_messages(messages_file_path, history_file_path):
     # Update the file with unprocessed messages (empty in this case)
     save_messages(messages_file_path, [])
 
-messages_file_path = "message_queue_live.json"
-history_file_path = "history.json"
+messages_file_path = "json_files/message_queue_live.json"
+history_file_path = "json_files/history_live.json"
 
 while True:
     process_messages(messages_file_path, history_file_path)

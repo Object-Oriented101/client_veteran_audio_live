@@ -34,7 +34,8 @@ def save_message(message):
 
 def on_message(ws, message):
     print("Received Transcription:", message)
-    save_message(message)
+    if message != "Thank you" or message != "" or message != "thanks for watching":
+        save_message(message)
 
 def on_error(ws, error):
     print("Error:", error)
@@ -65,7 +66,7 @@ def calculate_rms(audio_data):
 
 def audio_stream_callback(in_data, frame_count, time_info, status):
     global buffer, overlap_buffer, last_send_time
-    rms_threshold = 250  # Adjust the RMS threshold based on your needs
+    rms_threshold = 200  # Adjust the RMS threshold based on your needs
 
     current_time = time.time()  # Get the current time
 
