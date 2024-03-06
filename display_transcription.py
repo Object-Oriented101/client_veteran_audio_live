@@ -2,7 +2,7 @@ import streamlit as st
 import json
 import time
 
-file_path = "database.json"
+file_path = "json_files/database.json"
 
 def load_transcriptions():
     try:
