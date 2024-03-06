@@ -66,16 +66,21 @@ samples_per_frame = 1024
 sample_rate = 16000
 buffer_size = int((sample_rate / 1000) * buffer_duration_ms) * 2  # 2 bytes per sample for paInt16
 overlap_size = buffer_size  # Overlap is the same size as the buffer
+silence_threshold_seconds = 1.5  # How long to wait in silence before sending the buffer
+last_send_time = time.time()  # Initialization of the global variable
+# Initialization of other variables like buffer_duration_ms, sample_rate, etc.
 
 def audio_stream_callback(in_data, frame_count, time_info, status):
-    global buffer, overlap_buffer
+    global buffer, overlap_buffer, last_send_time  # Declare as global inside the function
     rms_threshold = 200  # Adjust the RMS threshold based on your needs
 
-    # Calculate RMS to check for voice activity
+    current_time = time.time()  # Get the current time
+
+    # Your logic to calculate RMS and handle voice activity
     if calculate_rms(in_data) > rms_threshold:
         buffer.extend(in_data)
         
-        # Once the buffer reaches the desired size, include the overlap from the previous buffer
+        # Logic to send data when the buffer is full or based on activity
         if len(buffer) >= buffer_size:
             send_buffer = overlap_buffer + buffer[:buffer_size]  # Combine overlap buffer and current buffer
             ws.send(send_buffer, opcode=websocket.ABNF.OPCODE_BINARY)
@@ -83,9 +88,17 @@ def audio_stream_callback(in_data, frame_count, time_info, status):
             # Update overlap buffer with the second half of the current buffer for the next overlap
             overlap_buffer = buffer[:buffer_size]  # Keep the first second as overlap
             buffer = buffer[buffer_size:]  # Remove the first second that was already included in send_buffer
+            last_send_time = current_time  # Update the last send time
+
+    # Additional condition to handle silence and send accumulated data
+    elif current_time - last_send_time >= silence_threshold_seconds and len(buffer) > 0:
+        send_buffer = overlap_buffer + buffer  # Send whatever is in the buffer
+        ws.send(send_buffer, opcode=websocket.ABNF.OPCODE_BINARY)
+        buffer = bytearray()  # Clear the main buffer
+        overlap_buffer = bytearray()  # Clear the overlap buffer
+        last_send_time = current_time  # Reset the last send time
 
     return (None, pyaudio.paContinue)
-
 
 def run(*args):
     p = pyaudio.PyAudio()
