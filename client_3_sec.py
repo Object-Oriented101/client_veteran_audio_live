@@ -2,12 +2,13 @@ import speech_recognition as sr
 import websocket
 import _thread as thread
 import json
+import time
+
+# just figure out to send the audio bytes as they come
+
 
 pod_id = "sjz61aho9p5lyj"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
-
-# Have two proccesses: time-based + pause based...
-# if no bytes...turn it off
 
 def save_message(message):
     file_path = "database.json"
@@ -33,20 +34,22 @@ def on_close(ws, close_status_code, close_msg):
     print("### CONNECTION CLOSED ###")
 
 def run(*args):
-        recognizer = sr.Recognizer()
-        mic = sr.Microphone()
-        with mic as source:
-            recognizer.adjust_for_ambient_noise(source)
-            print("Listening...")
-            while True:
-                try:
-                    audio = recognizer.listen(source)
-                    audio_data = audio.get_wav_data()
-                    ws.send(audio_data, opcode=websocket.ABNF.OPCODE_BINARY)
-                except Exception as e:
-                    print("Listening stopped:", e)
-                    break
-        ws.close()
+    recognizer = sr.Recognizer()
+    mic = sr.Microphone()
+    with mic as source:
+        recognizer.adjust_for_ambient_noise(source)
+        print("Listening...")
+        while True:
+            start_time = time.time()
+            # Record audio for 3 seconds
+            audio = recognizer.record(source, duration=2)
+            audio_data = audio.get_wav_data()
+            ws.send(audio_data, opcode=websocket.ABNF.OPCODE_BINARY)
+            # Adjust for any time taken to process and send the audio
+            time_taken = time.time() - start_time
+            if time_taken < 2:
+                time.sleep(2 - time_taken)
+
 def on_open(ws):
     thread.start_new_thread(run, ())
 
