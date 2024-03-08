@@ -11,11 +11,9 @@ SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 buffer = bytearray()
 overlap_buffer = bytearray()
 buffer_duration_ms = 1200  # Duration of each buffer in milliseconds
-samples_per_frame = 1024
-sample_rate = 16000
-buffer_size = int((sample_rate / 1000) * buffer_duration_ms) * 2
+buffer_size = int((16000 / 1000) * buffer_duration_ms) * 2
 overlap_size = buffer_size
-silence_threshold_seconds = 1.5  # How long to wait in silence before sending the buffer (seconds)
+silence_threshold_seconds = 1.5 # How long to wait before sending data if buffer size is not met
 last_send_time = time.time() 
 
 
@@ -34,6 +32,8 @@ def save_message(message):
 
 def on_message(ws, message):
     print("Received Transcription:", message)
+
+    # Filler words Whisper "transcribes" when there is no noise...manually removing
     if message != "Thank you" or message != "" or message != "thanks for watching":
         save_message(message)
 
@@ -68,23 +68,23 @@ def audio_stream_callback(in_data, frame_count, time_info, status):
     global buffer, overlap_buffer, last_send_time
     rms_threshold = 200  # Adjust the RMS threshold based on your needs
 
-    current_time = time.time()  # Get the current time
+    current_time = time.time()
 
     # Threshold determines what is considered "silence"
     if calculate_rms(in_data) > rms_threshold:
         buffer.extend(in_data)
         
-        # Logic to send data when the buffer is full or based on activity
+        # Logic to send data when the buffer is full
         if len(buffer) >= buffer_size:
             send_buffer = overlap_buffer + buffer[:buffer_size]  # Combine overlap buffer and current buffer
             ws.send(send_buffer, opcode=websocket.ABNF.OPCODE_BINARY)
             
             # Update overlap buffer with the second half of the current buffer for the next overlap
-            overlap_buffer = buffer[:buffer_size]  # Keep the first second as overlap
-            buffer = buffer[buffer_size:]  # Remove the first second that was already included in send_buffer
+            overlap_buffer = buffer[:buffer_size]
+            buffer = buffer[buffer_size:]
             last_send_time = current_time
 
-    # Additional condition to handle silence and send accumulated data
+    # Handle silence after breif talking -> send accumulated data
     elif current_time - last_send_time >= silence_threshold_seconds and len(buffer) > 0:
         send_buffer = overlap_buffer + buffer
         ws.send(send_buffer, opcode=websocket.ABNF.OPCODE_BINARY)
