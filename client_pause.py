@@ -3,11 +3,8 @@ import websocket
 import _thread as thread
 import json
 
-pod_id = "28erl462homow7"
+pod_id = "v0bobpng7jh39i"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
-
-# Have two proccesses: time-based + pause based...
-# if no bytes...turn it off
 
 def save_message(message):
     file_path = "json_files/history_pause.json"

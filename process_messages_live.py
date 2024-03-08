@@ -1,6 +1,6 @@
 import json
 import time
-import re  # Import the regular expressions library for removing punctuation
+import re
 
 def load_messages(file_path):
     try:
@@ -14,12 +14,11 @@ def save_messages(file_path, data):
     with open(file_path, "w") as file:
         json.dump(data, file)
 
+# Remove punctuation using regex
 def remove_punctuation(text):
-    # Remove punctuation using regex
     return re.sub(r'[^\w\s]', '', text)
 
 def append_new_words_only(history, new_message):
-    # Convert to lowercase and remove punctuation for comparison
     history_words = remove_punctuation(history.lower()).split()[-10:]
     new_message_words = remove_punctuation(new_message.lower()).split()
     
@@ -29,7 +28,6 @@ def append_new_words_only(history, new_message):
     return updated_history
 
 def process_messages(messages_file_path, history_file_path):
-    # Load history from history.json
     try:
         with open(history_file_path, "r") as file:
             history_data = json.load(file)
@@ -39,12 +37,10 @@ def process_messages(messages_file_path, history_file_path):
 
     messages = load_messages(messages_file_path)
     
-    # Process each new message
     for message in messages:
         new_message = message["new_message"]
         history = append_new_words_only(history, new_message)
     
-    # Save the updated history
     save_messages(history_file_path, {"history": history})
     
     # Update the file with unprocessed messages (empty in this case)
@@ -55,5 +51,4 @@ history_file_path = "json_files/history_live.json"
 
 while True:
     process_messages(messages_file_path, history_file_path)
-    # Adjust the sleep time as needed
-    time.sleep(1)  # Check for new messages every second
+    time.sleep(1)

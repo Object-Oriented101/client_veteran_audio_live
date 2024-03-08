@@ -5,7 +5,7 @@ import time
 import json
 import numpy as np
 
-pod_id = "28erl462homow7"
+pod_id = "v0bobpng7jh39i"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 
 buffer = bytearray()
@@ -13,10 +13,10 @@ overlap_buffer = bytearray()
 buffer_duration_ms = 1200  # Duration of each buffer in milliseconds
 samples_per_frame = 1024
 sample_rate = 16000
-buffer_size = int((sample_rate / 1000) * buffer_duration_ms) * 2  # 2 bytes per sample for paInt16
-overlap_size = buffer_size  # Overlap is the same size as the buffer
+buffer_size = int((sample_rate / 1000) * buffer_duration_ms) * 2
+overlap_size = buffer_size
 silence_threshold_seconds = 1.5  # How long to wait in silence before sending the buffer (seconds)
-last_send_time = time.time()  # Initialization of global variable
+last_send_time = time.time() 
 
 
 def save_message(message):
