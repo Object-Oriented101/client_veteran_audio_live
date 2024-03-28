@@ -2,8 +2,9 @@ import speech_recognition as sr
 import websocket
 import _thread as thread
 import json
+import uuid  # Import UUID library
 
-pod_id = "ugvukjxru8hkgu"
+pod_id = "kskncuqgyvvm6s"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 
 def save_message(message):
@@ -33,29 +34,32 @@ def on_close(ws, close_status_code, close_msg):
     print("### CONNECTION CLOSED ###")
 
 def run(*args):
-        recognizer = sr.Recognizer()
-        mic = sr.Microphone()
-        with mic as source:
-            recognizer.adjust_for_ambient_noise(source)
-            print("Listening...")
-            while True:
-                try:
-                    audio = recognizer.listen(source)
-                    audio_data = audio.get_wav_data()
-                    ws.send(audio_data, opcode=websocket.ABNF.OPCODE_BINARY)
-                except Exception as e:
-                    print("Listening stopped:", e)
-                    break
-        ws.close()
+    recognizer = sr.Recognizer()
+    mic = sr.Microphone()
+    with mic as source:
+        recognizer.adjust_for_ambient_noise(source)
+        print("Listening...")
+        while True:
+            try:
+                audio = recognizer.listen(source)
+                audio_data = audio.get_wav_data()
+                ws.send(audio_data, opcode=websocket.ABNF.OPCODE_BINARY)
+            except Exception as e:
+                print("Listening stopped:", e)
+                break
+    ws.close()
+
 def on_open(ws):
+    unique_id = str(uuid.uuid4())  # Generate a UUID
+    ws.send(unique_id)  # Send the UUID as the first message
     thread.start_new_thread(run, ())
 
 if __name__ == "__main__":
     websocket.enableTrace(False)
     ws = websocket.WebSocketApp(SERVER_WS_URL,
-                              on_open=on_open,
-                              on_message=on_message,
-                              on_error=on_error,
-                              on_close=on_close)
+                                on_open=on_open,
+                                on_message=on_message,
+                                on_error=on_error,
+                                on_close=on_close)
 
     ws.run_forever()

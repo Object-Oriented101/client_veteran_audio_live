@@ -29,4 +29,8 @@ Implementation of voice-to-text with the assistance of the speech_recognition li
 
 streamlit_app.py is used for internal testing to compare the two transcription methods side by side. It is not needed to run the program.
 
+### http
+Kept the http files for client and server as a reference
+
+
 

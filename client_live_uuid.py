@@ -1,11 +1,12 @@
 import pyaudio
+import uuid
 import websocket
 import _thread as thread
 import time
 import json
 import numpy as np
 
-pod_id = "ugvukjxru8hkgu"
+pod_id = "kskncuqgyvvm6s"
 SERVER_WS_URL = f"wss://{pod_id}-8888.proxy.runpod.net/ws"
 
 buffer = bytearray()
@@ -110,6 +111,8 @@ def run(*args):
         time.sleep(0.1)
 
 def on_open(ws):
+    unique_id = str(uuid.uuid4())  # Generate a UUID
+    ws.send(unique_id)  # Send the UUID as the first message
     thread.start_new_thread(run, ())
 
 if __name__ == "__main__":
